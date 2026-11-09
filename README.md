@@ -2,7 +2,7 @@
 
 Predicts the probability of heart disease from 13 clinical measurements and serves the model through a Flask web app. Built at Deggendorf Institute of Technology under the guidance of Prof. Ginu Alunkal.
 
-**Live demo:** _coming soon_
+**Live demo:** https://heart-disease-prediction-w8ez.onrender.com (free hosting: the first load can take up to a minute while the server wakes up)
 
 ![Screenshot of the web app](docs/screenshot.png)
 
@@ -45,7 +45,7 @@ The first version of this project used a 1,889-row copy of the dataset and repor
 ## Run it locally
 
 ```bash
-git clone https://github.com/<your-username>/heart-disease-prediction.git
+git clone https://github.com/akhileshsuresh97/heart-disease-prediction.git
 cd heart-disease-prediction
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
