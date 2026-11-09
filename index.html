@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heart disease prediction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fff8f6;
+    --grid: #f6dcdc;
+    --grid-major: #efc4c4;
+    --trace: #b3263a;
+    --ink: #1d2b3a;
+    --muted: #5d6b7a;
+    --surface: #ffffff;
+    --line: #e3d3d3;
+    --ok: #2e6b4f;
+    --ok-bg: #e9f4ee;
+    --warn-bg: #fbe9ec;
+    --focus: #1d4f91;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #1a2029;
+      --grid: #232b36;
+      --grid-major: #2b3542;
+      --trace: #f06a7d;
+      --ink: #e8edf2;
+      --muted: #a3afbc;
+      --surface: #212935;
+      --line: #364252;
+      --ok: #7fd1a6;
+      --ok-bg: #1f3a2d;
+      --warn-bg: #43222a;
+      --focus: #8db8f2;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid-major) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  }
+  .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.25rem 3rem; }
+
+  header { padding: 2.5rem 0 1.5rem; }
+  .trace { display: block; width: 100%; height: 72px; }
+  .trace path {
+    fill: none; stroke: var(--trace); stroke-width: 2.5;
+    stroke-linejoin: round; stroke-linecap: round;
+    stroke-dasharray: 1400; stroke-dashoffset: 1400;
+    animation: draw 1.8s ease-out 0.2s forwards;
+  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .trace path { animation: none; stroke-dashoffset: 0; }
+  }
+  h1 { font-size: clamp(2.25rem, 5vw, 3.5rem); line-height: 1.05; margin: 0.75rem 0 0.75rem; letter-spacing: -0.02em; }
+  .lede { max-width: 38rem; margin: 0; color: var(--muted); }
+
+  .layout { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+  .result.has-result { order: -1; }
+  @media (min-width: 900px) {
+    .result.has-result { order: 0; }
+    .layout { grid-template-columns: minmax(0, 1fr) 20rem; align-items: start; }
+    .result { position: sticky; top: 1.5rem; }
+  }
+
+  form, .result {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  form { padding: 1.5rem; }
+  fieldset { border: 0; margin: 0 0 1.75rem; padding: 0; }
+  legend { font-weight: 700; font-size: 1.25rem; margin-bottom: 0.75rem; padding: 0; }
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1rem 1.25rem; }
+  label { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem; }
+  .hint { font-weight: 400; color: var(--muted); }
+  input, select {
+    width: 100%; font: inherit; color: var(--ink);
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 4px; padding: 0.55rem 0.65rem;
+  }
+  input:focus-visible, select:focus-visible, button:focus-visible {
+    outline: 3px solid var(--focus); outline-offset: 2px;
+  }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+  button {
+    font: inherit; font-weight: 700; cursor: pointer;
+    border-radius: 4px; padding: 0.7rem 1.4rem; border: 2px solid var(--trace);
+  }
+  .primary { background: var(--trace); color: #fff; }
+  .secondary { background: transparent; color: var(--trace); }
+  @media (prefers-color-scheme: dark) { .primary { color: #1a2029; } }
+
+  .result { padding: 1.5rem; }
+  .result h2 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+  .verdict { border-radius: 4px; padding: 1rem; margin-bottom: 1rem; }
+  .verdict.warn { background: var(--warn-bg); border-left: 4px solid var(--trace); }
+  .verdict.ok { background: var(--ok-bg); border-left: 4px solid var(--ok); }
+  .verdict p { margin: 0; }
+  .verdict strong { display: block; font-size: 1.2rem; margin-bottom: 0.25rem; }
+  .meter { height: 10px; background: var(--grid-major); border-radius: 5px; overflow: hidden; margin: 0.4rem 0 1rem; }
+  .meter span { display: block; height: 100%; background: var(--trace); }
+  .muted { color: var(--muted); font-size: 0.95rem; }
+  .errors { background: var(--warn-bg); border-left: 4px solid var(--trace); padding: 0.75rem 1rem; margin-bottom: 1.25rem; border-radius: 4px; }
+  .errors ul { margin: 0.25rem 0 0; padding-left: 1.2rem; }
+
+  footer { margin-top: 2rem; color: var(--muted); font-size: 0.9rem; max-width: 44rem; }
+  footer a { color: inherit; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg class="trace" viewBox="0 0 1000 72" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 44 H180 l12 -6 l12 6 H250 l8 8 l14 -48 l14 60 l10 -14 H360 l20 -10 l20 10 H560 l12 -6 l12 6 H630 l8 8 l14 -48 l14 60 l10 -14 H740 l20 -10 l20 10 H1000"/>
+    </svg>
+    <h1>Heart disease prediction</h1>
+    <p class="lede">Enter the results of a patient’s cardiology work-up. A model trained on 303 patients from the Cleveland Clinic estimates the probability of heart disease.</p>
+  </header>
+
+  <div class="layout">
+    <form method="post" action="/" novalidate>
+      {% if errors %}
+      <div class="errors" role="alert">
+        <strong>Check these fields:</strong>
+        <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      </div>
+      {% endif %}
+
+      <fieldset>
+        <legend>Patient</legend>
+        <div class="fields">
+          <div>
+            <label for="age">Age <span class="hint">(years)</span></label>
+            <input id="age" name="age" type="number" min="18" max="100" required value="{{ values.get('age', '') }}">
+          </div>
+          <div>
+            <label for="sex">Sex</label>
+            <select id="sex" name="sex">
+              <option value="1" {% if values.get('sex') == 1 %}selected{% endif %}>Male</option>
+              <option value="0" {% if values.get('sex') == 0 %}selected{% endif %}>Female</option>
+            </select>
+          </div>
+          <div>
+            <label for="trestbps">Resting blood pressure <span class="hint">(mm Hg)</span></label>
+            <input id="trestbps" name="trestbps" type="number" min="80" max="220" required value="{{ values.get('trestbps', '') }}">
+          </div>
+          <div>
+            <label for="chol">Serum cholesterol <span class="hint">(mg/dl)</span></label>
+            <input id="chol" name="chol" type="number" min="100" max="600" required value="{{ values.get('chol', '') }}">
+          </div>
+          <div>
+            <label for="fbs">Fasting blood sugar above 120 mg/dl</label>
+            <select id="fbs" name="fbs">
+              <option value="0" {% if values.get('fbs') == 0 %}selected{% endif %}>No</option>
+              <option value="1" {% if values.get('fbs') == 1 %}selected{% endif %}>Yes</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Symptoms and resting ECG</legend>
+        <div class="fields">
+          <div>
+            <label for="cp">Chest pain type</label>
+            <select id="cp" name="cp">
+              {% for v, t in [(1, 'Typical angina'), (2, 'Atypical angina'), (3, 'Non-anginal pain'), (4, 'No symptoms')] %}
+              <option value="{{ v }}" {% if values.get('cp') == v %}selected{% endif %}>{{ t }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="restecg">Resting ECG</label>
+            <select id="restecg" name="restecg">
+              {% for v, t in [(0, 'Normal'), (1, 'ST-T wave abnormality'), (2, 'Left ventricular hypertrophy')] %}
+              <option value="{{ v }}" {% if values.get('restecg') == v %}selected{% endif %}>{{ t }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Exercise stress test</legend>
+        <div class="fields">
+          <div>
+            <label for="thalach">Maximum heart rate <span class="hint">(bpm)</span></label>
+            <input id="thalach" name="thalach" type="number" min="60" max="220" required value="{{ values.get('thalach', '') }}">
+          </div>
+          <div>
+            <label for="exang">Angina during exercise</label>
+            <select id="exang" name="exang">
+              <option value="0" {% if values.get('exang') == 0 %}selected{% endif %}>No</option>
+              <option value="1" {% if values.get('exang') == 1 %}selected{% endif %}>Yes</option>
+            </select>
+          </div>
+          <div>
+            <label for="oldpeak">ST depression <span class="hint">(mm)</span></label>
+            <input id="oldpeak" name="oldpeak" type="number" step="0.1" min="0" max="7" required value="{{ values.get('oldpeak', '') }}">
+          </div>
+          <div>
+            <label for="slope">Slope of peak ST segment</label>
+            <select id="slope" name="slope">
+              {% for v, t in [(1, 'Upsloping'), (2, 'Flat'), (3, 'Downsloping')] %}
+              <option value="{{ v }}" {% if values.get('slope') == v %}selected{% endif %}>{{ t }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Imaging</legend>
+        <div class="fields">
+          <div>
+            <label for="ca">Major vessels coloured by fluoroscopy</label>
+            <select id="ca" name="ca">
+              {% for v in [0, 1, 2, 3] %}
+              <option value="{{ v }}" {% if values.get('ca') == v %}selected{% endif %}>{{ v }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="thal">Thallium stress test</label>
+            <select id="thal" name="thal">
+              {% for v, t in [(3, 'Normal'), (6, 'Fixed defect'), (7, 'Reversible defect')] %}
+              <option value="{{ v }}" {% if values.get('thal') == v %}selected{% endif %}>{{ t }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <button class="primary" type="submit">Predict</button>
+        <button class="secondary" type="button" id="example">Use example patient</button>
+      </div>
+    </form>
+
+    <aside class="result{% if result %} has-result{% endif %}" aria-live="polite">
+      {% if result %}
+        <h2>Result</h2>
+        {% if result.has_disease %}
+        <div class="verdict warn">
+          <p><strong>Signs of heart disease</strong>The model’s estimate is above the 50% threshold.</p>
+        </div>
+        {% else %}
+        <div class="verdict ok">
+          <p><strong>No signs of heart disease</strong>The model’s estimate is below the 50% threshold.</p>
+        </div>
+        {% endif %}
+        <p class="muted">Estimated probability: {{ (result.probability * 100) | round | int }}%</p>
+        <div class="meter" role="img" aria-label="Probability {{ (result.probability * 100) | round | int }} percent"><span style="width: {{ (result.probability * 100) | round(1) }}%"></span></div>
+        {% if not result.has_disease %}
+          <h2>Secondary check</h2>
+          {% if result.secondary %}
+          <p>{{ result.secondary }} flagged, based on blood pressure, cholesterol, age and fasting blood sugar.</p>
+          {% else %}
+          <p>No hypertension or diabetes risk profile flagged.</p>
+          {% endif %}
+        {% endif %}
+      {% else %}
+        <h2>Result</h2>
+        <p class="muted">Fill in the form and select Predict. To try it quickly, select Use example patient first.</p>
+      {% endif %}
+    </aside>
+  </div>
+
+  <footer>
+    <p>Educational project, not a medical device. Predictions come from a statistical model trained on a small 1988 dataset and must not be used for diagnosis. The secondary check uses simple threshold rules, not a clinical diagnosis.</p>
+    <p>Data: Janosi, Steinbrunn, Pfisterer &amp; Detrano (1989), UCI Heart Disease dataset, <a href="https://doi.org/10.24432/C52P4X">doi.org/10.24432/C52P4X</a>.</p>
+  </footer>
+</div>
+
+<script>
+  document.getElementById("example").addEventListener("click", function () {
+    var example = { age: 63, sex: 1, trestbps: 145, chol: 233, fbs: 1, cp: 1, restecg: 2,
+                    thalach: 150, exang: 0, oldpeak: 2.3, slope: 3, ca: 0, thal: 6 };
+    Object.keys(example).forEach(function (k) {
+      document.getElementById(k).value = example[k];
+    });
+    document.getElementById("age").focus();
+  });
+</script>
+</body>
+</html>

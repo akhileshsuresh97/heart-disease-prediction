@@ -1,0 +1,73 @@
+{
+  "dataset": "UCI Heart Disease (Cleveland), 303 patients",
+  "test_size": 61,
+  "best_model": "Extra Trees",
+  "comparison": [
+    {
+      "model": "Extra Trees",
+      "cv_roc_auc": 0.9015,
+      "accuracy": 0.8361,
+      "precision": 0.8,
+      "recall": 0.8571,
+      "specificity": 0.8182,
+      "f1": 0.8276,
+      "roc_auc": 0.9524
+    },
+    {
+      "model": "Logistic Regression",
+      "cv_roc_auc": 0.9001,
+      "accuracy": 0.8525,
+      "precision": 0.8065,
+      "recall": 0.8929,
+      "specificity": 0.8182,
+      "f1": 0.8475,
+      "roc_auc": 0.9578
+    },
+    {
+      "model": "K-Nearest Neighbors",
+      "cv_roc_auc": 0.8981,
+      "accuracy": 0.8852,
+      "precision": 0.8182,
+      "recall": 0.9643,
+      "specificity": 0.8182,
+      "f1": 0.8852,
+      "roc_auc": 0.961
+    },
+    {
+      "model": "SVC",
+      "cv_roc_auc": 0.8978,
+      "accuracy": 0.8361,
+      "precision": 0.7812,
+      "recall": 0.8929,
+      "specificity": 0.7879,
+      "f1": 0.8333,
+      "roc_auc": 0.947
+    },
+    {
+      "model": "Random Forest",
+      "cv_roc_auc": 0.8837,
+      "accuracy": 0.9016,
+      "precision": 0.8438,
+      "recall": 0.9643,
+      "specificity": 0.8485,
+      "f1": 0.9,
+      "roc_auc": 0.9551
+    },
+    {
+      "model": "Gradient Boosting",
+      "cv_roc_auc": 0.8807,
+      "accuracy": 0.8525,
+      "precision": 0.8276,
+      "recall": 0.8571,
+      "specificity": 0.8485,
+      "f1": 0.8421,
+      "roc_auc": 0.9232
+    }
+  ],
+  "secondary_model_accuracy": 0.9868,
+  "secondary_class_counts": {
+    "0": 225,
+    "1": 51,
+    "2": 27
+  }
+}

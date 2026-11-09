@@ -1,0 +1,5 @@
+# Extra dependencies for retraining (python src/train.py)
+-r requirements.txt
+matplotlib==3.11.2
+# Optional, only for src/train_nn.py:
+# tensorflow
